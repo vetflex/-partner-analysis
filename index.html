@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VetFlex — Partner Catch-Up Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --ink: #0e1117;
+    --ink-2: #3a3d45;
+    --ink-3: #7a7e8a;
+    --ink-4: #b0b4be;
+    --paper: #f7f6f2;
+    --paper-2: #eeecea;
+    --white: #ffffff;
+    --teal: #0d7a5f;
+    --teal-light: #d6f2eb;
+    --green: #3a7c1a;
+    --green-light: #e4f2d8;
+    --purple: #5b4ecb;
+    --purple-light: #eeecff;
+    --amber: #b85c00;
+    --amber-light: #fff0e0;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --border: rgba(14,17,23,0.1);
+    --r: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--ink);
+    color: var(--white);
+    padding: clamp(1.5rem, 5vw, 2.5rem) clamp(1.25rem, 5vw, 3rem) clamp(1.25rem, 4vw, 2rem);
+  }
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(22px, 6vw, 34px);
+    font-weight: 400;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .header-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 1.25rem;
+  }
+  .header-desc {
+    font-size: clamp(12px, 3vw, 13px);
+    color: rgba(255,255,255,0.5);
+    line-height: 1.7;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 1rem;
+  }
+
+  /* ── MAIN ── */
+  .main { padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) 4rem; max-width: 1100px; margin: 0 auto; }
+
+  /* ── CONTROLS ── */
+  .controls {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .control-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
+    margin-bottom: 8px;
+  }
+  .bench-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .bench-btn {
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink-2);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 36px;
+  }
+  .bench-btn.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--white);
+    font-weight: 500;
+  }
+  .custom-row {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 0 4px;
+  }
+  .custom-row label { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+  .custom-row input[type=range] { flex: 1; min-width: 100px; accent-color: var(--ink); }
+  .custom-row input[type=number] {
+    width: 65px; padding: 6px 8px;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-family: 'DM Mono', monospace; font-size: 13px;
+    background: var(--paper); color: var(--ink);
+  }
+  .bench-desc { font-size: 11px; color: var(--ink-3); line-height: 1.6; margin-top: 6px; }
+  .controls-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .fica-wrap { display: flex; align-items: center; gap: 8px; }
+  .fica-wrap select {
+    font-size: 13px; padding: 6px 10px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--paper); color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 36px;
+  }
+
+  /* ── METRICS GRID ── */
+  .metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+  @media (min-width: 600px) {
+    .metrics { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 900px) {
+    .metrics { grid-template-columns: repeat(6, 1fr); }
+  }
+  .metric {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: .85rem 1rem;
+  }
+  .metric.highlight { background: var(--ink); border-color: var(--ink); }
+  .metric.highlight .m-label { color: rgba(255,255,255,0.4); }
+  .metric.highlight .m-val   { color: var(--white); }
+  .metric.highlight .m-sub   { color: rgba(255,255,255,0.35); }
+  .m-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
+  .m-val { font-family: 'DM Serif Display', serif; font-size: clamp(18px, 4vw, 22px); font-weight: 400; line-height: 1.1; margin-bottom: 2px; }
+  .m-sub { font-size: 10px; color: var(--ink-3); line-height: 1.4; }
+
+  /* ── PARTNER CARDS (mobile-first, replaces tables on small screens) ── */
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
+    margin: 1.25rem 0 .6rem;
+  }
+
+  /* Mobile partner cards */
+  .partner-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem; }
+  .pcard {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+  .pcard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--paper);
+  }
+  .pcard-name { font-weight: 500; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .pcard-dist { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--red); }
+  .pcard-dist-label { font-size: 10px; color: var(--ink-3); font-family: 'DM Mono', monospace; text-align: right; }
+  .pcard-body { padding: .85rem 1.1rem; }
+  .pcard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(14,17,23,0.05);
+    font-size: 13px;
+    gap: 8px;
+  }
+  .pcard-row:last-child { border-bottom: none; }
+  .pcard-row-label { color: var(--ink-3); font-size: 12px; flex-shrink: 0; }
+  .pcard-row-val { font-weight: 500; font-family: 'DM Mono', monospace; font-size: 13px; text-align: right; }
+  .pcard-segments { margin-top: 8px; }
+  .seg-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(14,17,23,0.05);
+    font-size: 12px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .seg-item:last-child { border-bottom: none; }
+  .seg-label { color: var(--ink-3); font-family: 'DM Mono', monospace; font-size: 11px; }
+  .seg-vals { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .pill {
+    display: inline-block; font-size: 9px; padding: 1px 6px;
+    border-radius: 10px; font-weight: 500; vertical-align: middle;
+    font-family: 'DM Mono', monospace; letter-spacing: 0.02em; white-space: nowrap;
+  }
+  .pill-missed { background: var(--amber-light); color: var(--amber); }
+  .pill-actual { background: var(--teal-light); color: var(--teal); }
+  .pill-none   { background: var(--red-light); color: var(--red); }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 9px;
+    border-radius: 20px; font-weight: 500;
+    font-family: 'DM Mono', monospace;
+  }
+  .b-teal   { background: var(--teal-light);   color: var(--teal);   }
+  .b-green  { background: var(--green-light);  color: var(--green);  }
+  .b-purple { background: var(--purple-light); color: var(--purple); }
+
+  /* Desktop table (hidden on mobile) */
+  .table-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .table-card { display: block; }
+    .partner-cards { display: none; }
+  }
+  .table-head {
+    padding: .85rem 1.25rem .6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .table-head h3 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .table-note { font-size: 11px; color: var(--ink-3); }
+  .overflow { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  th {
+    text-align: left; padding: 8px 12px;
+    font-size: 10px; font-weight: 500;
+    color: var(--ink-3); font-family: 'DM Mono', monospace;
+    border-bottom: 1px solid var(--border);
+    background: var(--paper);
+    white-space: nowrap;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid rgba(14,17,23,0.05); font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  .subtotal td { background: var(--paper-2) !important; font-weight: 500; font-size: 12px; color: var(--ink-2); font-family: 'DM Mono', monospace; }
+  .mono { font-family: 'DM Mono', monospace; }
+  .dist-amount { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--red); }
+  .tvm-less { color: var(--teal); font-family: 'DM Mono', monospace; font-size: 12px; }
+  .tvm-more { color: var(--red); font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  /* ── CHART ── */
+  .chart-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 1.25rem 1.25rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .chart-wrap { position: relative; height: clamp(200px, 40vw, 260px); }
+  .legend { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--ink-3); flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .footer-note { font-size: 11px; color: var(--ink-4); line-height: 1.7; margin-bottom: .75rem; }
+  .footer-brand { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-4); line-height: 1.8; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .metric { animation: fadeUp 0.35s ease both; }
+  .metric:nth-child(1){animation-delay:.04s}.metric:nth-child(2){animation-delay:.07s}
+  .metric:nth-child(3){animation-delay:.10s}.metric:nth-child(4){animation-delay:.13s}
+  .metric:nth-child(5){animation-delay:.16s}.metric:nth-child(6){animation-delay:.19s}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">VetFlex Inc. · Partner Analysis</div>
+  <h1>Compensation<br>Catch-Up Analysis</h1>
+  <div class="header-meta">Confidential · April 2026 · 4 Partners · Equal Equity</div>
+  <p class="header-desc">Each partner's hypothetical missed payments — based on Jordan's actual schedule from July 2024 — are grown forward using the selected benchmark to reflect the true opportunity cost of delayed compensation.</p>
+</div>
+
+<div class="main">
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="control-label">TVM Benchmark</div>
+    <div class="bench-group">
+      <button class="bench-btn active" onclick="setBench('sp500',this)">S&P 500 (actual)</button>
+      <button class="bench-btn" onclick="setBench('hysa',this)">HYSA ~4.5%</button>
+      <button class="bench-btn" onclick="setBench('mmf',this)">Money market ~5%</button>
+      <button class="bench-btn" onclick="setBench('tbill',this)">T-bill ~5.25%</button>
+      <button class="bench-btn" onclick="setBench('custom',this)">Custom</button>
+    </div>
+    <div id="customRow" class="custom-row">
+      <label>Rate</label>
+      <input type="range" id="customSlider" min="0" max="30" step="0.25" value="7" oninput="syncCustom('slider')">
+      <input type="number" id="customInput" min="0" max="30" step="0.25" value="7" oninput="syncCustom('input')">
+      <span style="font-size:12px;color:var(--ink-3);">% / yr</span>
+    </div>
+    <p id="benchDesc" class="bench-desc">Actual S&P 500 monthly total returns (dividends reinvested) Jul 2024 – Mar 2026. Each hypothetical missed payment grown forward from the month it would have been received.</p>
+    <div class="controls-bottom">
+      <div class="fica-wrap">
+        <span class="control-label" style="margin:0">FICA</span>
+        <select id="ficaSel" onchange="calc()">
+          <option value="1">None — face value</option>
+          <option value="0.9235" selected>−7.65% employee FICA</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div id="metrics" class="metrics"></div>
+
+  <!-- Mobile: partner cards -->
+  <div class="section-title">Catch-up by partner</div>
+  <div id="partnerCards" class="partner-cards"></div>
+
+  <!-- Desktop: detail table -->
+  <div class="table-card" id="detailCard">
+    <div class="table-head">
+      <h3>Hypothetical schedule — grown to today</h3>
+      <p class="table-note">Jordan's actual wage history applied to all partners from Jul 2024</p>
+    </div>
+    <div class="overflow">
+      <table>
+        <thead><tr>
+          <th>Partner</th><th>Period</th><th>Type</th><th>Monthly</th>
+          <th style="text-align:center">Mo.</th>
+          <th style="text-align:right">Face</th>
+          <th style="text-align:right">TVM today</th>
+          <th style="text-align:right">Gain</th>
+        </tr></thead>
+        <tbody id="detailBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Desktop: summary table -->
+  <div class="table-card" id="summaryCard">
+    <div class="table-head">
+      <h3>Distribution summary</h3>
+      <p class="table-note">TVM of full hypothetical schedule minus face value actually received</p>
+    </div>
+    <div class="overflow">
+      <table>
+        <thead><tr>
+          <th>Partner</th>
+          <th style="text-align:right">Should have (TVM)</th>
+          <th style="text-align:right">Actually received</th>
+          <th style="text-align:right">Distribution needed</th>
+          <th style="text-align:right">vs. face gap</th>
+        </tr></thead>
+        <tbody id="summaryBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-card">
+    <div class="section-title">Distribution comparison</div>
+    <div class="chart-wrap">
+      <canvas id="chart" role="img" aria-label="Bar chart comparing face gap vs TVM distribution needed per partner"></canvas>
+    </div>
+    <div id="legend" class="legend"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p class="footer-note">All figures sourced from verified IRS filings: 2024 & 2025 W-2s, Form 940, Form 941, and DE 9C quarterly wage reports. S&P 500 monthly returns from officialdata.org (dividends reinvested). 2026 payroll through March 2026. This analysis is for internal partner discussion only and does not constitute legal or tax advice.</p>
+    <div class="footer-brand">VetFlex Inc. · EIN 92-0415599 · PO Box 99984, San Diego CA 92169 · April 2026</div>
+  </div>
+
+</div>
+
+<script>
+const SP500={'2024-07':-0.0097,'2024-08':0.0272,'2024-09':0.0315,'2024-10':0.0248,'2024-11':0.0147,'2024-12':-0.0042,'2025-01':0.0109,'2025-02':-0.0577,'2025-03':-0.0542,'2025-04':0.0834,'2025-05':0.0388,'2025-06':0.0453,'2025-07':0.0189,'2025-08':0.0283,'2025-09':0.0240,'2025-10':0.0017,'2025-11':0.0176,'2025-12':0.0121,'2026-01':-0.0041,'2026-02':-0.0338,'2026-03':-0.0109};
+const ALL_KEYS=Object.keys(SP500).sort();
+const BENCH_META={
+  sp500:{label:'S&P 500',rate:null,desc:'Actual S&P 500 monthly total returns (dividends reinvested) Jul 2024 – Mar 2026. Each missed payment grown forward from the month it would have been received.'},
+  hysa:{label:'HYSA ~4.5%',rate:0.045,desc:'High-yield savings account ~4.5% APY — conservative liquid benchmark reflecting rates available through 2024–2025.'},
+  mmf:{label:'Money market ~5%',rate:0.050,desc:'Money market fund ~5% APY, reflecting the Fed Funds rate environment of 2024–2025.'},
+  tbill:{label:'T-bill ~5.25%',rate:0.0525,desc:'3-month T-bill ~5.25% APY — risk-free rate, commonly used as the opportunity cost benchmark in equity analyses.'},
+  custom:{label:'Custom',rate:null,desc:'Enter any annual rate to model alternative opportunity costs.'},
+};
+let bench='sp500', customRate=7;
+
+const JORDAN_SCHEDULE=[
+  {sy:2024,sm:7,ey:2024,em:12,wage:5000},
+  {sy:2025,sm:1,ey:2025,em:12,wage:10000},
+  {sy:2026,sm:1,ey:2026,em:3,wage:10000},
+];
+const ACTUAL={
+  Jesse:[{sy:2025,sm:10,ey:2025,em:12,wage:5000},{sy:2026,sm:1,ey:2026,em:3,wage:5000}],
+  Michael:[{sy:2025,sm:10,ey:2025,em:12,wage:5000},{sy:2026,sm:1,ey:2026,em:3,wage:5000}],
+  J:[],
+};
+const PARTNERS=[
+  {name:'Jesse',  badge:'b-teal',  color:'#0d7a5f'},
+  {name:'Michael',badge:'b-green', color:'#3a7c1a'},
+  {name:'J',      badge:'b-purple',color:'#5b4ecb'},
+];
+
+let chartInst=null;
+
+function mk(y,m){return `${y}-${String(m).padStart(2,'0')}`;}
+function monthRange(sy,sm,ey,em){const r=[];let y=sy,m=sm;while(y<ey||(y===ey&&m<=em)){r.push(mk(y,m));m++;if(m>12){m=1;y++;}}return r;}
+function growFactor(fromKey){
+  if(bench==='sp500'){const idx=ALL_KEYS.indexOf(fromKey);if(idx<0)return 1;let f=1;for(let i=idx;i<ALL_KEYS.length;i++)f*=(1+SP500[ALL_KEYS[i]]);return f;}
+  const annual=bench==='custom'?customRate/100:BENCH_META[bench].rate;
+  const idx=ALL_KEYS.indexOf(fromKey);const n=idx<0?0:ALL_KEYS.length-idx;
+  return Math.pow(1+annual/12,n);
+}
+function calcShouldHave(fica){
+  let fT=0,tT=0;const rows=[];
+  JORDAN_SCHEDULE.forEach(seg=>{
+    const months=monthRange(seg.sy,seg.sm,seg.ey,seg.em);let f=0,t=0;
+    months.forEach(m=>{const net=seg.wage*fica;f+=net;t+=net*growFactor(m);});
+    fT+=f;tT+=t;
+    rows.push({label:`${mk(seg.sy,seg.sm)} – ${mk(seg.ey,seg.em)}`,wage:seg.wage,months:months.length,face:f,tvm:t});
+  });
+  return{face:fT,tvm:tT,rows};
+}
+function calcActual(name,fica){return ACTUAL[name].reduce((s,seg)=>s+monthRange(seg.sy,seg.sm,seg.ey,seg.em).length*seg.wage*fica,0);}
+function fmt(n){return '$'+Math.round(n).toLocaleString();}
+
+function setBench(key,btn){
+  bench=key;
+  document.querySelectorAll('.bench-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('customRow').style.display=key==='custom'?'flex':'none';
+  document.getElementById('benchDesc').textContent=BENCH_META[key].desc;
+  calc();
+}
+function syncCustom(src){
+  if(src==='slider'){customRate=parseFloat(document.getElementById('customSlider').value);document.getElementById('customInput').value=customRate;}
+  else{customRate=parseFloat(document.getElementById('customInput').value)||0;document.getElementById('customSlider').value=customRate;}
+  calc();
+}
+
+function calc(){
+  const fica=parseFloat(document.getElementById('ficaSel').value);
+  const should=calcShouldHave(fica);
+  const results=PARTNERS.map(p=>{
+    const actualFace=calcActual(p.name,fica);
+    const distNeeded=should.tvm-actualFace;
+    const simpleFaceGap=should.face-actualFace;
+    return{...p,actualFace,shouldTVM:should.tvm,shouldFace:should.face,distNeeded,simpleFaceGap,tvmAdd:distNeeded-simpleFaceGap};
+  });
+
+  // ── MOBILE PARTNER CARDS ──
+  const pc=document.getElementById('partnerCards');
+  pc.innerHTML='';
+  results.forEach(r=>{
+    const isJ=r.name==='J';
+    let segsHtml='';
+    should.rows.forEach(row=>{
+      const gain=row.tvm-row.face;
+      segsHtml+=`<div class="seg-item">
+        <span class="seg-label">${row.label} · $${row.wage.toLocaleString()}/mo</span>
+        <div class="seg-vals">
+          <span class="pill pill-missed">hypothetical</span>
+          <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ink-2)">${fmt(row.tvm)}</span>
+          <span style="font-size:11px;color:var(--teal)">+${fmt(gain)}</span>
+        </div>
+      </div>`;
+    });
+    let actualHtml='';
+    if(isJ){
+      actualHtml=`<div class="seg-item"><span class="seg-label">No payments received</span><div class="seg-vals"><span class="pill pill-none">$0</span></div></div>`;
+    } else {
+      ACTUAL[r.name].forEach(seg=>{
+        const months=monthRange(seg.sy,seg.sm,seg.ey,seg.em);
+        const face=months.length*seg.wage*fica;
+        actualHtml+=`<div class="seg-item">
+          <span class="seg-label">${mk(seg.sy,seg.sm)} – ${mk(seg.ey,seg.em)} · $${seg.wage.toLocaleString()}/mo</span>
+          <div class="seg-vals"><span class="pill pill-actual">received</span><span style="font-family:'DM Mono',monospace;font-size:12px">${fmt(face)}</span></div>
+        </div>`;
+      });
+    }
+    const tvmStr=r.tvmAdd>0?`+${fmt(r.tvmAdd)} more than face gap`:r.tvmAdd<0?`${fmt(Math.abs(r.tvmAdd))} less than face gap`:'same as face gap';
+    const tvmColor=r.tvmAdd>0?'var(--red)':'var(--teal)';
+    const div=document.createElement('div');
+    div.className='pcard';
+    div.innerHTML=`
+      <div class="pcard-header">
+        <div class="pcard-name"><span class="badge ${r.badge}">${r.name}</span></div>
+        <div><div class="pcard-dist">${fmt(r.distNeeded)}</div><div class="pcard-dist-label">distribution needed</div></div>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-row"><span class="pcard-row-label">Should have (TVM)</span><span class="pcard-row-val">${fmt(r.shouldTVM)}</span></div>
+        <div class="pcard-row"><span class="pcard-row-label">Actually received</span><span class="pcard-row-val" style="color:${isJ?'var(--red)':'inherit'}">${isJ?'$0':fmt(r.actualFace)}</span></div>
+        <div class="pcard-row"><span class="pcard-row-label">Face gap only</span><span class="pcard-row-val">${fmt(r.simpleFaceGap)}</span></div>
+        <div class="pcard-row"><span class="pcard-row-label">TVM adjustment</span><span class="pcard-row-val" style="color:${tvmColor};font-size:12px">${tvmStr}</span></div>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">
+          <div style="font-size:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:6px;">Hypothetical schedule</div>
+          ${segsHtml}
+          <div style="font-size:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:8px 0 6px;">Actual received</div>
+          ${actualHtml}
+        </div>
+      </div>`;
+    pc.appendChild(div);
+  });
+
+  // ── DESKTOP DETAIL TABLE ──
+  const db=document.getElementById('detailBody');
+  db.innerHTML='';
+  PARTNERS.forEach(p=>{
+    const r=results.find(x=>x.name===p.name);
+    should.rows.forEach((row,i)=>{
+      const gain=row.tvm-row.face;
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${i===0?`<span class="badge ${p.badge}">${p.name}</span>`:''}</td><td class="mono" style="font-size:11px;color:var(--ink-3)">${row.label}</td><td><span class="pill pill-missed">hypothetical</span></td><td>$${row.wage.toLocaleString()}/mo</td><td style="text-align:center;color:var(--ink-3)">${row.months}</td><td style="text-align:right;color:var(--ink-3)">${fmt(row.face)}</td><td style="text-align:right;font-weight:500">${fmt(row.tvm)}</td><td style="text-align:right;color:var(--teal)">+${fmt(gain)}</td>`;
+      db.appendChild(tr);
+    });
+    if(p.name==='J'){
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td></td><td style="color:var(--ink-4);font-size:12px">—</td><td><span class="pill pill-none">nothing received</span></td><td style="color:var(--ink-4)">—</td><td style="text-align:center;color:var(--ink-4)">—</td><td style="text-align:right;color:var(--red);font-weight:500">$0</td><td colspan="2" style="color:var(--ink-4);font-style:italic;font-size:12px">—</td>`;
+      db.appendChild(tr);
+    } else {
+      ACTUAL[p.name].forEach(seg=>{
+        const months=monthRange(seg.sy,seg.sm,seg.ey,seg.em);
+        const face=months.length*seg.wage*fica;
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td></td><td class="mono" style="font-size:11px;color:var(--ink-3)">${mk(seg.sy,seg.sm)} – ${mk(seg.ey,seg.em)}</td><td><span class="pill pill-actual">received</span></td><td>$${seg.wage.toLocaleString()}/mo</td><td style="text-align:center;color:var(--ink-3)">${months.length}</td><td style="text-align:right">${fmt(face)}</td><td colspan="2" style="color:var(--ink-4);font-style:italic;font-size:12px">—</td>`;
+        db.appendChild(tr);
+      });
+    }
+    const st=document.createElement('tr');
+    st.className='subtotal';
+    st.innerHTML=`<td colspan="5">${p.name} · Should have ${fmt(r.shouldTVM)} · Received ${fmt(r.actualFace)}</td><td colspan="3" style="text-align:right;color:var(--red)">Dist. needed: ${fmt(r.distNeeded)}</td>`;
+    db.appendChild(st);
+  });
+
+  // ── DESKTOP SUMMARY TABLE ──
+  const sb=document.getElementById('summaryBody');
+  sb.innerHTML='';
+  results.forEach(r=>{
+    const tvmStr=r.tvmAdd>0?`<span class="tvm-more">+${fmt(r.tvmAdd)} more</span>`:r.tvmAdd<0?`<span class="tvm-less">−${fmt(Math.abs(r.tvmAdd))} less</span>`:'<span style="color:var(--ink-3)">same</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="badge ${r.badge}">${r.name}</span></td><td style="text-align:right;font-weight:500">${fmt(r.shouldTVM)}</td><td style="text-align:right">${r.name==='J'?'<span style="color:var(--red);font-weight:500">$0</span>':fmt(r.actualFace)}</td><td style="text-align:right"><span class="dist-amount">${fmt(r.distNeeded)}</span></td><td style="text-align:right">${tvmStr}</td>`;
+    sb.appendChild(tr);
+  });
+  const totalDist=results.reduce((s,r)=>s+r.distNeeded,0);
+  const totalFace=results.reduce((s,r)=>s+r.simpleFaceGap,0);
+  const tot=document.createElement('tr');
+  tot.className='subtotal';
+  tot.innerHTML=`<td colspan="3" style="text-align:right">Total</td><td style="text-align:right;color:var(--red)">${fmt(totalDist)}</td><td style="text-align:right;color:var(--ink-3)">Face: ${fmt(totalFace)}</td>`;
+  sb.appendChild(tot);
+
+  // ── METRICS ──
+  const mel=document.getElementById('metrics');
+  mel.innerHTML='';
+  const mets=[
+    {lbl:'Jordan Total',val:fmt(should.face),sub:'Face value baseline'},
+    {lbl:'Jesse Dist.',val:fmt(results[0].distNeeded),sub:'TVM catch-up'},
+    {lbl:'Michael Dist.',val:fmt(results[1].distNeeded),sub:'TVM catch-up'},
+    {lbl:'J Dist.',val:fmt(results[2].distNeeded),sub:'Full TVM · $0 received'},
+    {lbl:'Total Distributions',val:fmt(totalDist),sub:'All 3 partners',hi:true},
+    {lbl:'Face Gap Only',val:fmt(totalFace),sub:'No TVM adjustment'},
+  ];
+  mets.forEach(m=>{mel.innerHTML+=`<div class="metric${m.hi?' highlight':''}"><div class="m-label">${m.lbl}</div><div class="m-val">${m.val}</div><div class="m-sub">${m.sub}</div></div>`;});
+
+  // ── CHART ──
+  if(chartInst)chartInst.destroy();
+  chartInst=new Chart(document.getElementById('chart'),{
+    type:'bar',
+    data:{
+      labels:results.map(r=>r.name),
+      datasets:[
+        {label:'Simple face gap',data:results.map(r=>Math.round(r.simpleFaceGap)),backgroundColor:'rgba(14,17,23,0.1)',borderColor:'rgba(14,17,23,0.2)',borderWidth:1},
+        {label:'TVM distribution',data:results.map(r=>Math.round(r.distNeeded)),backgroundColor:PARTNERS.map(p=>p.color+'bb'),borderColor:PARTNERS.map(p=>p.color),borderWidth:1.5},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#0e1117',titleFont:{family:'DM Mono, monospace',size:11},bodyFont:{family:'DM Mono, monospace',size:12},callbacks:{label:ctx=>` ${fmt(ctx.raw)}`}}
+      },
+      scales:{
+        y:{ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v),color:'#7a7e8a',font:{family:'DM Mono, monospace',size:11}},grid:{color:'rgba(14,17,23,0.06)'},border:{display:false}},
+        x:{ticks:{color:'#3a3d45',font:{family:'DM Sans, sans-serif',size:13}},grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+
+  const rateStr=bench==='sp500'?'S&P 500 actual':bench==='custom'?`${customRate}% / yr`:`${(BENCH_META[bench].rate*100).toFixed(2)}% / yr`;
+  document.getElementById('legend').innerHTML=`
+    <div class="legend-item"><span class="legend-dot" style="background:rgba(14,17,23,0.2)"></span>Simple face gap</div>
+    <div class="legend-item"><span class="legend-dot" style="background:rgba(55,138,221,0.6)"></span>TVM distribution — ${rateStr}</div>
+  `;
+}
+calc();
+</script>
+</body>
+</html>
