@@ -341,23 +341,23 @@
     <div class="bench-group">
       <button class="bench-btn" onclick="setBench('sp500',this)">S&P 500 (actual)</button>
       <button class="bench-btn" onclick="setBench('hysa',this)">HYSA ~4.5%</button>
-      <button class="bench-btn active" onclick="setBench('mmf',this)">Money market ~5%</button>
+      <button class="bench-btn" onclick="setBench('mmf',this)">Money market ~5%</button>
       <button class="bench-btn" onclick="setBench('tbill',this)">T-bill ~5.25%</button>
-      <button class="bench-btn" onclick="setBench('custom',this)">Custom</button>
+      <button class="bench-btn active" onclick="setBench('custom',this)">Custom</button>
     </div>
-    <div id="customRow" class="custom-row">
+    <div id="customRow" class="custom-row" style="display:flex;">
       <label>Rate</label>
-      <input type="range" id="customSlider" min="0" max="30" step="0.25" value="7" oninput="syncCustom('slider')">
-      <input type="number" id="customInput" min="0" max="30" step="0.25" value="7" oninput="syncCustom('input')">
+      <input type="range" id="customSlider" min="0" max="30" step="0.25" value="0" oninput="syncCustom('slider')">
+      <input type="number" id="customInput" min="0" max="30" step="0.25" value="0" oninput="syncCustom('input')">
       <span style="font-size:12px;color:var(--ink-3);">% / yr</span>
     </div>
-    <p id="benchDesc" class="bench-desc">Money market fund ~5% APY, reflecting the Fed Funds rate environment of 2024–2025.</p>
+    <p id="benchDesc" class="bench-desc">Enter any annual rate to model alternative opportunity costs.</p>
     <div class="controls-bottom">
       <div class="fica-wrap">
         <span class="control-label" style="margin:0">FICA</span>
         <select id="ficaSel" onchange="calc()">
-          <option value="1">None — face value</option>
-          <option value="0.9235" selected>−7.65% employee FICA</option>
+          <option value="1" selected>None — face value</option>
+          <option value="0.9235">−7.65% employee FICA</option>
         </select>
       </div>
     </div>
@@ -433,11 +433,11 @@ const ALL_KEYS=Object.keys(SP500).sort();
 const BENCH_META={
   sp500:{label:'S&P 500',rate:null,desc:'Actual S&P 500 monthly total returns (dividends reinvested) Jul 2024 – Mar 2026. Each missed payment grown forward from the month it would have been received.'},
   hysa:{label:'HYSA ~4.5%',rate:0.045,desc:'High-yield savings account ~4.5% APY — conservative liquid benchmark reflecting rates available through 2024–2025.'},
-  mmf:{label:'Money market ~5%',rate:0.050,desc:'Money market fund ~5% APY, reflecting the Fed Funds rate environment of 2024–2025.'},
+  mmf:{label:'Money market ~5%',rate:0.050,desc:'Enter any annual rate to model alternative opportunity costs.'},
   tbill:{label:'T-bill ~5.25%',rate:0.0525,desc:'3-month T-bill ~5.25% APY — risk-free rate, commonly used as the opportunity cost benchmark in equity analyses.'},
   custom:{label:'Custom',rate:null,desc:'Enter any annual rate to model alternative opportunity costs.'},
 };
-let bench='mmf', customRate=7;
+let bench='custom', customRate=0;
 
 const JORDAN_SCHEDULE=[
   {sy:2024,sm:7,ey:2024,em:12,wage:5000},
