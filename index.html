@@ -339,9 +339,9 @@
   <div class="controls">
     <div class="control-label">TVM Benchmark</div>
     <div class="bench-group">
-      <button class="bench-btn active" onclick="setBench('sp500',this)">S&P 500 (actual)</button>
+      <button class="bench-btn" onclick="setBench('sp500',this)">S&P 500 (actual)</button>
       <button class="bench-btn" onclick="setBench('hysa',this)">HYSA ~4.5%</button>
-      <button class="bench-btn" onclick="setBench('mmf',this)">Money market ~5%</button>
+      <button class="bench-btn active" onclick="setBench('mmf',this)">Money market ~5%</button>
       <button class="bench-btn" onclick="setBench('tbill',this)">T-bill ~5.25%</button>
       <button class="bench-btn" onclick="setBench('custom',this)">Custom</button>
     </div>
@@ -351,7 +351,7 @@
       <input type="number" id="customInput" min="0" max="30" step="0.25" value="7" oninput="syncCustom('input')">
       <span style="font-size:12px;color:var(--ink-3);">% / yr</span>
     </div>
-    <p id="benchDesc" class="bench-desc">Actual S&P 500 monthly total returns (dividends reinvested) Jul 2024 – Mar 2026. Each hypothetical missed payment grown forward from the month it would have been received.</p>
+    <p id="benchDesc" class="bench-desc">Money market fund ~5% APY, reflecting the Fed Funds rate environment of 2024–2025.</p>
     <div class="controls-bottom">
       <div class="fica-wrap">
         <span class="control-label" style="margin:0">FICA</span>
@@ -422,7 +422,7 @@
   <!-- Footer -->
   <div class="footer">
     <p class="footer-note">All figures sourced from verified IRS filings: 2024 & 2025 W-2s, Form 940, Form 941, and DE 9C quarterly wage reports. S&P 500 monthly returns from officialdata.org (dividends reinvested). 2026 payroll through March 2026. This analysis is for internal partner discussion only and does not constitute legal or tax advice.</p>
-    <div class="footer-brand">VetFlex Inc. · EIN 92-0415599 · PO Box 99984, San Diego CA 92169 · April 2026</div>
+    <div class="footer-brand">VetFlex Inc. · PO Box 99984, San Diego CA 92169 · April 2026</div>
   </div>
 
 </div>
@@ -437,11 +437,12 @@ const BENCH_META={
   tbill:{label:'T-bill ~5.25%',rate:0.0525,desc:'3-month T-bill ~5.25% APY — risk-free rate, commonly used as the opportunity cost benchmark in equity analyses.'},
   custom:{label:'Custom',rate:null,desc:'Enter any annual rate to model alternative opportunity costs.'},
 };
-let bench='sp500', customRate=7;
+let bench='mmf', customRate=7;
 
 const JORDAN_SCHEDULE=[
   {sy:2024,sm:7,ey:2024,em:12,wage:5000},
-  {sy:2025,sm:1,ey:2025,em:12,wage:10000},
+  {sy:2025,sm:1,ey:2025,em:9,wage:5000},
+  {sy:2025,sm:10,ey:2025,em:12,wage:10000},
   {sy:2026,sm:1,ey:2026,em:3,wage:10000},
 ];
 const ACTUAL={
